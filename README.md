@@ -9,7 +9,11 @@ Clase de Administración Cuantitativa de Riesgos Financieros
 Maestría en Actuaría y Finanzas  
 Universidad Nacional de Colombia
 
-**Autor:** Jose Miguel Acuña Hernandes (Migue)
+**Autor:** Jose Miguel Acuña Hernandes (RiemannIntegrable)
+
+## 💻 Uso
+
+En el noteboon timegan_var.ipynb, en la descarga y presocesamiento de los datos construya usted su propio portafolio descargando la informacion de las acciones en yahoofinance con la libreria yfinance como se ve en el notebook.
 
 ## 🎯 Objetivos
 
@@ -48,38 +52,46 @@ Este proyecto utiliza las siguientes tecnologías y librerías principales:
 
 ## 🏗️ Estructura del Proyecto
 
-```
-proyecto_timegan_var/
+timegan_var/
 │
-├── 📁 src/
-│   ├── 📁 data/           # Módulos para procesamiento de datos
-│   │   ├── __init__.py     # Exporta funciones de datos
-│   │   ├── loader.py       # Carga y preprocesamiento de datos
-│   │   ├── transform.py    # Transformaciones para series financieras
-│   │   └── windowing.py    # Creación de ventanas temporales
+├── 💾 data/
+│   ├── 📥 input/           # Datos originales para conformar el portafolio
+│   ├── ⚙️ processed/       # Retornos logarítmicos procesados del portafolio
+│   └── 📤 output/          # Resultados y métricas exportadas del análisis
+│
+├── 🖼️ images/              # Visualizaciones y diagramas generados
+│
+├── 🧠 models/              # Modelos TimeGAN entrenados (.h5)
+│
+├── 📓 notebooks/           # Cuadernos Jupyter interactivos
+│   ├── 📊 timegan_var.ipynb # Notebook principal con implementación completa
+│   └── 📈 yfinance.ipynb    # Exploración de datos de Yahoo Finance
+│
+├── ⚙️ src/                 # Código fuente modular del proyecto
+│   ├── 📊 data/            # Procesamiento y manipulación de datos
+│   │   ├── 🔄 __init__.py   # Exportación de funciones de datos
+│   │   ├── 📥 loader.py     # Carga y validación de datos financieros
+│   │   ├── 🔧 transform.py  # Transformaciones para series temporales
+│   │   └── 🪟 windowing.py  # Creación de ventanas para entrenamiento
 │   │
-│   ├── 📁 models/         # Implementación de TimeGAN y cálculo de VaR
-│   │   ├── __init__.py     # Exporta funciones de modelos
-│   │   ├── timegan.py      # Implementación TimeGAN
-│   │   └── var_model.py    # Cálculo del VaR
+│   ├── 🤖 models/          # Implementaciones de modelos
+│   │   ├── 🔄 __init__.py   # Exportación de funciones de modelos
+│   │   ├── 🧮 timegan.py    # Arquitectura TimeGAN completa
+│   │   └── 📉 var_model.py  # Cálculo de VaR con distintas metodologías
 │   │
-│   ├── 📁 utils/          # Utilidades de evaluación y visualización
-│   │   ├── __init__.py     # Exporta funciones de utilidades
-│   │   ├── evaluation.py   # Métricas de evaluación
-│   │   └── visualization.py # Visualizaciones
+│   ├── 🛠️ utils/           # Utilidades y herramientas auxiliares
+│   │   ├── 🔄 __init__.py    # Exportación de funciones de utilidades
+│   │   ├── 📏 evaluation.py  # Métricas de evaluación y validación
+│   │   └── 📊 visualization.py # Generación de gráficos y visualizaciones
 │   │
-│   └── __init__.py         # Archivo principal del paquete
+│   └── 🔄 __init__.py      # Exportación de componentes principales
 │
-├── 📁 notebooks/          # Jupyter notebooks con ejemplos y tutoriales
-│   └── proyecto.ipynb     # Notebook principal
+├── 📝 tex/                 # Proyecto entregable en LaTeX y PDF
 │
-├── 📁 data/
-│   ├── 📁 raw/            # Datos originales sin procesar
-│   └── 📁 processed/      # Datos procesados listos para el modelo
-│
-├── 📁 models/             # Modelos entrenados guardados en formato .h5
-│
-└── 📄 README.md
+├── 🙈 .gitignore           # Archivos y directorios excluidos del repositorio
+├── ⚙️ environment.yml      # Especificación del entorno Conda
+├── ⚖️ LICENSE              # Licencia MIT del proyecto
+└── 📚 README.md            # Este archivo de documentación
 ```
 
 ## ⚙️ Instalación y Configuración del Entorno
@@ -156,71 +168,6 @@ dependencies:
   - pip:
       - tensorflow==2.16.1
       - keras==3.9.2
-```
-
-## 💻 Uso
-
-### Preparación de Datos
-
-```python
-from src.data import load_stock_data, calculate_returns, add_features, normalize_data, create_windows
-
-# Cargar datos históricos
-df = load_stock_data('data/raw/stock_prices.csv')
-
-# Calcular rendimientos y añadir características
-df = calculate_returns(df, method='log')
-df = add_features(df, window_sizes=[5, 10, 20])
-
-# Normalizar datos
-df_norm, norm_params = normalize_data(df, method='minmax')
-
-# Crear ventanas para entrenamiento
-windows = create_windows(df_norm, window_size=30, stride=5)
-```
-
-### Entrenamiento del Modelo TimeGAN
-
-```python
-from src.models import timegan_init, timegan_train, timegan_export_generator
-
-# Inicializar y entrenar el modelo
-timegan_tuple = timegan_init(time_series_len=30, features=5, rnn_units=64, rnn_layers=3)
-trained_model = timegan_train(windows, timegan_tuple, epochs=2000, batch_size=32, learning_rate=0.001)
-
-# Exportar el generador para su uso
-generator = timegan_export_generator(trained_model)
-```
-
-### Generación de Series Sintéticas y Cálculo de VaR
-
-```python
-from src.models import generator_gen, monte_carlo_var
-
-# Generar datos sintéticos
-synthetic_windows = generator_gen(generator, generate_cnt=100)
-
-# Calcular VaR mediante Monte Carlo
-initial_price = 100.0
-var, es = monte_carlo_var(synthetic_windows, initial_price, horizon=1, confidence_level=0.95)
-
-print(f"VaR (95%): ${var:.2f}")
-print(f"Expected Shortfall: ${es:.2f}")
-```
-
-### Visualización de Resultados
-
-```python
-from src.utils import plot_stock_prices, plot_returns_distribution, plot_var_histogram
-
-# Visualizar precios históricos y proyecciones
-plot_stock_prices(historical_prices, synthetic_prices, dates=historical_dates)
-
-# Comparar distribuciones de rendimientos
-plot_returns_distribution(real_returns, synthetic_returns)
-
-# Visualizar VaR en la distribución de P&L
-plot_var_histogram(pnl_values, var_value, confidence_level=0.95)
 ```
 
 ## 🔬 Marco Teórico
