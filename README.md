@@ -1,12 +1,12 @@
----
-
 <div align="center">
+
+---
 
 # **TimeGAN-VaR: Generación Sintética de Series Temporales para VaR**
 
-</div>
-
 ---
+
+</div>
 
 ## 📋 **Descripción**
 
