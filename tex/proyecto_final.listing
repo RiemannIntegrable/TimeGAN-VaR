@@ -1,0 +1,20 @@
+{
+# Cargamos datos
+datos <- read.csv("datos.csv")
+# Realizamos un análisis descriptivo básico
+summary(datos)
+# Visualizamos los primeros registros
+head(datos)
+}
+
+% Output R con estilo moderno
+\routput{Resultado del análisis}{
+> summary(datosAltura)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+  150.0   165.0   172.0   173.5   180.0   195.0
+}
+
+% Ejemplo de uso de referencias cruzadas
+\section{Resultados y discusión}
+Como se puede observar en la \cref{sec:introduccion}, los datos presentan una distribución normal.
+
