@@ -9,6 +9,7 @@ dependencies:
   - _openmp_mutex=4.5=2_gnu
   - alsa-lib=1.2.14=hb9d3cd8_0
   - anyio=4.9.0=pyh29332c3_0
+  - appdirs=1.4.4=pyhd3eb1b0_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py311h9ecbd09_5
   - arrow=1.3.0=pyhd8ed1ab_1
@@ -23,13 +24,14 @@ dependencies:
   - brotli-bin=1.1.0=hb9d3cd8_2
   - brotli-python=1.1.0=py311hfdbb021_2
   - bzip2=1.0.8=h4bc722e_7
-  - ca-certificates=2025.2.25=h06a4308_0
+  - ca-certificates=2025.4.26=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
   - cairo=1.18.4=h3394656_0
-  - certifi=2025.1.31=py311h06a4308_0
+  - certifi=2025.1.31=pyhd8ed1ab_0
   - cffi=1.17.1=py311hf29c0ef_0
   - charset-normalizer=3.4.1=pyhd8ed1ab_0
+  - colorama=0.4.6=pyhd8ed1ab_1
   - comm=0.2.2=pyhd8ed1ab_1
   - contourpy=1.3.2=py311hd18a35c_0
   - cycler=0.12.1=pyhd8ed1ab_1
@@ -52,11 +54,13 @@ dependencies:
   - fonttools=4.57.0=py311h2dc5d0c_0
   - fqdn=1.5.1=pyhd8ed1ab_1
   - freetype=2.13.3=ha770c72_1
+  - frozendict=2.4.2=py311h06a4308_0
   - graphite2=1.3.13=h59595ed_1003
   - h11=0.14.0=pyhd8ed1ab_1
   - h2=4.2.0=pyhd8ed1ab_0
   - harfbuzz=11.1.0=h3beb420_0
   - hpack=4.1.0=pyhd8ed1ab_0
+  - html5lib=1.1=pyhd3eb1b0_0
   - httpcore=1.0.7=pyh29332c3_1
   - httpx=0.28.1=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
@@ -141,11 +145,13 @@ dependencies:
   - libxml2=2.13.7=h4bc477f_1
   - libxslt=1.1.39=h76b75d6_0
   - libzlib=1.3.1=hb9d3cd8_2
+  - lxml=5.3.2=py311hbd2c71b_0
   - markupsafe=3.0.2=py311h2dc5d0c_1
   - matplotlib=3.10.1=py311h38be061_0
   - matplotlib-base=3.10.1=py311h2b939e6_0
   - matplotlib-inline=0.1.7=pyhd8ed1ab_1
   - mistune=3.1.3=pyh29332c3_0
+  - multitasking=0.0.9=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mysql-common=9.2.0=h266115a_0
   - mysql-libs=9.2.0=he0572af_0
@@ -165,6 +171,7 @@ dependencies:
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parso=0.8.4=pyhd8ed1ab_1
   - pcre2=10.44=hba22ea6_2
+  - peewee=3.17.9=py311h333efcf_0
   - pexpect=4.9.0=pyhd8ed1ab_1
   - pickleshare=0.7.5=pyhd8ed1ab_1004
   - pillow=11.1.0=py311h1322bbf_0
@@ -215,6 +222,7 @@ dependencies:
   - tk=8.6.13=noxft_h4845f30_101
   - tomli=2.2.1=pyhd8ed1ab_1
   - tornado=6.4.2=py311h9ecbd09_0
+  - tqdm=4.67.1=pyhd8ed1ab_1
   - traitlets=5.14.3=pyhd8ed1ab_1
   - types-python-dateutil=2.9.0.20241206=pyhd8ed1ab_0
   - typing-extensions=4.13.2=h0e9735f_0
@@ -253,6 +261,7 @@ dependencies:
   - xorg-libxtst=1.2.5=hb9d3cd8_3
   - xorg-libxxf86vm=1.1.6=hb9d3cd8_0
   - yaml=0.2.5=h7f98852_2
+  - yfinance=0.2.55=pyhd8ed1ab_0
   - zeromq=4.3.5=h3b0a872_7
   - zipp=3.21.0=pyhd8ed1ab_1
   - zstandard=0.23.0=py311h9ecbd09_1

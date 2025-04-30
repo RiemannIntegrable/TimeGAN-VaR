@@ -128,27 +128,34 @@ channels:
   - defaults
 dependencies:
   # --- Core ---
-  - python=3.8
+  - python=3.11
   - pip
 
   # --- Análisis y Datos ---
-  - numpy~=1.20.0
-  - pandas~=1.3.0
-  - scipy>=1.7.0
-  - scikit-learn~=0.24.0
+  - numpy~=1.26.4
+  - pandas~=2.2.3
+  - scipy>=1.15.2
+  - scikit-learn~=1.4.2
   - statsmodels>=0.12.0
 
   # --- Visualización ---
-  - matplotlib>=3.4.0
-  - seaborn>=0.11.0
+  - matplotlib>=3.10.1
+  - seaborn>=0.13.2
 
   # --- Entorno Interactivo ---
   - jupyterlab
   - ipykernel
+  - notebook-shim
+  - jupyter_server
+
+  # --- Utilidades ---
+  - tqdm>=4.67.1
+  - pyyaml>=6.0.2
 
   # --- Dependencias instaladas con Pip ---
   - pip:
-      - tensorflow==2.5.0
+      - tensorflow==2.16.1
+      - keras==3.9.2
 ```
 
 ## 💻 Uso
@@ -262,9 +269,23 @@ Este proyecto sirve como herramienta educativa para comprender:
 - A los autores del paper original de TimeGAN (Yoon, Jarrett y van der Schaar)
 - A la comunidad de código abierto por sus contribuciones en el campo del aprendizaje automático aplicado a finanzas
 
+## 📝 Atribución del Código Original
+
+La implementación base de TimeGAN en Keras utilizada en este proyecto está basada en el código desarrollado por [gusxo](https://github.com/gusxo) en el repositorio [TimeGAN-keras](https://github.com/gusxo/TimeGAN-keras). El repositorio original no especifica una licencia explícita.
+
+A partir de esta implementación base, se han realizado las siguientes adaptaciones y extensiones:
+
+- Estructuración del código en una arquitectura modular de proyecto
+- Adaptación para el análisis de series temporales financieras
+- Implementación de métodos para el cálculo de Valor en Riesgo (VaR)
+- Adición de herramientas de evaluación y visualización específicas para datos financieros
+- Desarrollo de interfaces para facilitar la experimentación y uso
+
+Este reconocimiento se realiza como buena práctica académica y de desarrollo de software.
+
 ## 📜 Licencia
 
-Este proyecto está licenciado bajo MIT License - ver el archivo LICENSE para más detalles.
+Las adaptaciones, extensiones y contribuciones originales de este proyecto están licenciadas bajo la Licencia MIT - ver el archivo LICENSE para más detalles. Esta licencia aplica únicamente a las contribuciones originales a este proyecto y no modifica ningún derecho existente sobre el código base de TimeGAN-keras.
 
 ---
 
