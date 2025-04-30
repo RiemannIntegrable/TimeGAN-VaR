@@ -3,7 +3,7 @@ Módulos para carga, preprocesamiento y transformación de datos financieros.
 """
 
 from .loader import load_stock_data, check_data_quality, save_processed_data
-from .transform import calculate_returns, add_features, normalize_data, inverse_normalize
+from .transform import calculate_returns, add_features, normalize_data, inverse_normalize, build_multi_asset_portfolio
 from .windowing import create_windows, recreate_time_series
 
 __all__ = [
@@ -15,5 +15,6 @@ __all__ = [
     'normalize_data',
     'inverse_normalize',
     'create_windows',
-    'recreate_time_series'
+    'recreate_time_series',
+    'build_multi_asset_portfolio'
 ]
