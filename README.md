@@ -1,21 +1,29 @@
-# 📊 TimeGAN-VaR: Generación Sintética de Series Temporales para VaR 📈
+---
 
-## 📋 Descripción
+<div align="center">
+
+# **TimeGAN-VaR: Generación Sintética de Series Temporales para VaR**
+
+</div>
+
+---
+
+## 📋 **Descripción**
 
 Este proyecto implementa un enfoque avanzado para el cálculo del Valor en Riesgo (VaR) mediante la generación de series temporales sintéticas utilizando Redes Generativas Adversarias Temporales (TimeGAN). Este método permite una estimación más robusta del riesgo financiero a través de la simulación de Monte Carlo con datos sintéticos que conservan las propiedades estadísticas y temporales de las series históricas.
 
-**Proyecto desarrollado para:**  
+**Proyecto desarrollado para:*  
 Clase de Administración Cuantitativa de Riesgos Financieros  
 Maestría en Actuaría y Finanzas  
 Universidad Nacional de Colombia
 
 **Autor:** Jose Miguel Acuña Hernandes (RiemannIntegrable)
 
-## 💻 Uso
+## 💻 **Uso**
 
 En el noteboon timegan_var.ipynb, en la descarga y presocesamiento de los datos construya usted su propio portafolio descargando la informacion de las acciones en yahoofinance con la libreria yfinance como se ve en el notebook.
 
-## 🎯 Objetivos
+## 🎯 **Objetivos**
 
 * **Objetivo Principal:**
     * Implementar un modelo TimeGAN para la generación de series temporales sintéticas que capturen las propiedades estadísticas y temporales de datos financieros históricos
@@ -26,7 +34,7 @@ En el noteboon timegan_var.ipynb, en la descarga y presocesamiento de los datos 
     * Evaluar la calidad de las series sintéticas generadas mediante métricas específicas
     * Desarrollar una estructura de proyecto modular y reutilizable para el análisis de riesgos financieros
 
-## 🌟 Características
+## 🌟 **Características**
 
 - 🧠 Implementación completa de TimeGAN en TensorFlow/Keras
 - 📉 Generación de trayectorias sintéticas de precios de activos financieros
