@@ -52,6 +52,7 @@ Este proyecto utiliza las siguientes tecnologías y librerías principales:
 
 ## 🏗️ Estructura del Proyecto
 
+```
 timegan_var/
 │
 ├── 💾 data/
