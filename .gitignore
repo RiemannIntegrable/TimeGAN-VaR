@@ -109,3 +109,6 @@ config.local.yaml
 # Logs
 *.log
 logs/
+
+# task
+task.txt

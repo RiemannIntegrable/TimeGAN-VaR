@@ -14,7 +14,8 @@ from .visualization import (
     plot_returns_distribution,
     plot_acf_comparison,
     plot_var_histogram,
-    plot_multiple_var_methods
+    plot_multiple_var_methods,
+    plot_synthetic_returns
 )
 
 __all__ = [
@@ -26,5 +27,6 @@ __all__ = [
     'plot_returns_distribution',
     'plot_acf_comparison',
     'plot_var_histogram',
-    'plot_multiple_var_methods'
+    'plot_multiple_var_methods',
+    'plot_synthetic_returns'
 ]

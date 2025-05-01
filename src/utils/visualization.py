@@ -4,6 +4,8 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.dates import DateFormatter
 import matplotlib.dates as mdates
+import matplotlib as mpl
+from matplotlib.gridspec import GridSpec
 
 def plot_stock_prices(real_prices, synthetic_prices=None, dates=None, title='Precios de Acciones', future_dates=None):
     """
@@ -196,4 +198,42 @@ def plot_multiple_var_methods(var_values, methods, title='Comparación de Métod
     plt.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
     
+    return plt.gcf()
+
+def plot_synthetic_returns(synthetic_windows):
+    """
+    Visualiza múltiples simulaciones de retornos sintéticos en un solo gráfico.
+    
+    Args:
+        synthetic_windows: Tensor de forma (n_simulations, time_steps, features)
+    """
+    n_simulations = synthetic_windows.shape[0]
+    time_steps = synthetic_windows.shape[1]
+    
+    # Crear figura
+    plt.figure(figsize=(12, 7))
+    
+    # Eje x para todas las gráficas
+    x = np.arange(time_steps)
+    
+    # Establecer un esquema de colores
+    cmap = plt.cm.viridis
+    
+    # Graficar todas las simulaciones
+    for i in range(n_simulations):
+        color = cmap(i/n_simulations)
+        plt.plot(x, synthetic_windows[i, :, 0], color=color, linewidth=1.5)
+    
+    # Configurar el gráfico
+    plt.title('Simulaciones de retornos sintéticos generados por TimeGAN', fontsize=14)
+    plt.xlabel('Tiempo (días)', fontsize=12)
+    plt.ylabel('Retorno logarítmico', fontsize=12)
+    plt.grid(True, alpha=0.3)
+    
+    # Añadir una anotación sobre el número de simulaciones
+    plt.annotate(f'Total: {n_simulations} simulaciones', 
+                 xy=(0.05, 0.95), xycoords='axes fraction',
+                 fontsize=10, bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.8))
+    
+    plt.tight_layout()
     return plt.gcf()

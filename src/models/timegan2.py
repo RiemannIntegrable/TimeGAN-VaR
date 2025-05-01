@@ -5,6 +5,7 @@ from tqdm import trange
 import matplotlib.pyplot as plt
 
 def timegan_init(time_series_len, features, rnn_units, rnn_layers):
+    # El código existente permanece igual
     def get_model(input_shape, output_units, rnn_units, layer_cnt):
         inputs = keras.layers.Input(input_shape)
         x = inputs
@@ -23,6 +24,7 @@ def timegan_init(time_series_len, features, rnn_units, rnn_layers):
     return embedder, generator, supervisor, recovery, discriminator
 
 def timegan_export_generator(timegan_tuple):
+    # El código existente permanece igual
     _, generator, supervisor, recovery, _ = timegan_tuple
     syn_gen_input = keras.Input(generator.input_shape[1:])
     syn_gen_output = generator(syn_gen_input)
@@ -43,24 +45,9 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     # Los últimos n_samples - train_size elementos son para prueba
     x_test = x[train_size:]
     
-    # Verificar las diferencias estadísticas entre train y test antes de empezar
-    print("Verificando estadísticas de los conjuntos:")
-    print(f"Train - Media: {np.mean(x_train):.4f}, Desv. Est.: {np.std(x_train):.4f}")
-    print(f"Test - Media: {np.mean(x_test):.4f}, Desv. Est.: {np.std(x_test):.4f}")
-    
-    # Funciones para obtener lotes asegurando el mismo tamaño
-    def get_batch():
-        indices = np.random.permutation(x_train.shape[0])[:batch_size]
-        return tf.convert_to_tensor(x_train[indices])
-    
-    def get_test_batch():
-        # Si hay menos muestras de test que el tamaño del lote, muestreamos con reemplazo
-        if x_test.shape[0] < batch_size:
-            indices = np.random.choice(x_test.shape[0], batch_size, replace=True)
-        else:
-            indices = np.random.permutation(x_test.shape[0])[:batch_size]
-        return tf.convert_to_tensor(x_test[indices])
-    
+    # Funciones para obtener lotes
+    get_batch = lambda: tf.convert_to_tensor(x_train[np.random.permutation(x_train.shape[0])[:batch_size]])
+    get_test_batch = lambda: tf.convert_to_tensor(x_test[np.random.permutation(x_test.shape[0])[:min(batch_size, x_test.shape[0])]])
     get_random_vector = lambda: tf.convert_to_tensor(np.random.uniform(size=(batch_size, x.shape[1], x.shape[2])))
 
     # loss & optimizer
@@ -77,9 +64,9 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     def train_autoencoder(x, timegan, mse, opt):
         embedder, generator, supervisor, recovery, discriminator = timegan
         with tf.GradientTape() as tape:
-            h = embedder(x)
-            x_tilde = recovery(h)
-            loss = 10 * tf.sqrt(mse(x_tilde, x))
+            y_true = embedder(x)
+            y_true = recovery(y_true)
+            loss = 10 * tf.sqrt(mse(y_true, x))
         var_list = embedder.trainable_variables + recovery.trainable_variables
         gradients = tape.gradient(loss, var_list)
         opt.apply_gradients(zip(gradients, var_list))
@@ -88,18 +75,18 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     @tf.function
     def test_autoencoder(x, timegan, mse):
         embedder, generator, supervisor, recovery, discriminator = timegan
-        h = embedder(x)
-        x_tilde = recovery(h)
-        loss = 10 * tf.sqrt(mse(x_tilde, x))
+        y_true = embedder(x)
+        y_true = recovery(y_true)
+        loss = 10 * tf.sqrt(mse(y_true, x))
         return loss
 
     @tf.function
     def train_supervisor(x, timegan, mse, opt):
         embedder, generator, supervisor, recovery, discriminator = timegan
         with tf.GradientTape() as tape:
-            h = embedder(x)
-            h_pred = supervisor(h)
-            loss = mse(h[:, 1:, :], h_pred[:, :-1, :])
+            y_true = embedder(x)
+            y_pred = supervisor(y_true)
+            loss = mse(y_true[:, 1:, :], y_pred[:, :-1, :])
         var_list = generator.trainable_variables + supervisor.trainable_variables
         gradients = tape.gradient(loss, var_list)
         apply_grads = [(grad, var) for (grad, var) in zip(gradients, var_list) if grad is not None]
@@ -109,9 +96,9 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     @tf.function
     def test_supervisor(x, timegan, mse):
         embedder, generator, supervisor, recovery, discriminator = timegan
-        h = embedder(x)
-        h_pred = supervisor(h)
-        loss = mse(h[:, 1:, :], h_pred[:, :-1, :])
+        y_true = embedder(x)
+        y_pred = supervisor(y_true)
+        loss = mse(y_true[:, 1:, :], y_pred[:, :-1, :])
         return loss
 
     @tf.function
@@ -119,34 +106,32 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
         embedder, generator, supervisor, recovery, discriminator = timegan
         with tf.GradientTape() as tape:
             # supervised loss
-            h = embedder(x)
-            h_pred = supervisor(h)
-            supervised_loss = mse(h[:, 1:, :], h_pred[:, :-1, :])
+            y_true = embedder(x)
+            y_pred = supervisor(y_true)
+            supervised_loss = mse(y_true[:, 1:, :], y_pred[:, :-1, :])
 
             # unsupervised loss
-            y_real = tf.ones((x.shape[0], x.shape[1], 1))
-            h_fake = generator(z)
-            h_fake_sup = supervisor(h_fake)
-            y_fake_sup = discriminator(h_fake_sup)
-            unsupervised_loss = bce(y_real, y_fake_sup)
+            y_true = tf.ones((x.shape[0], x.shape[1], 1))
+            y_pred = generator(z)
+            y_pred = supervisor(y_pred)
+            y_pred = discriminator(y_pred)
+            unsupervised_loss = bce(y_true, y_pred)
 
             # unsupervised loss - E
-            y_real = tf.ones((x.shape[0], x.shape[1], 1))
-            h_fake = generator(z)
-            y_fake = discriminator(h_fake)
-            unsupervised_loss_e = bce(y_real, y_fake)
+            y_true = tf.ones((x.shape[0], x.shape[1], 1))
+            y_pred = generator(z)
+            y_pred = discriminator(y_pred)
+            unsupervised_loss_e = bce(y_true, y_pred)
 
             # moment loss
-            x_real = x
-            h_fake = generator(z)
-            h_fake_sup = supervisor(h_fake)
-            x_fake = recovery(h_fake_sup)
-            
-            x_real_mean, x_real_var = tf.nn.moments(x_real, axes=[0])
-            x_fake_mean, x_fake_var = tf.nn.moments(x_fake, axes=[0])
-            
-            v1 = tf.reduce_mean(tf.abs(x_real_mean - x_fake_mean))
-            v2 = tf.reduce_mean(tf.abs(tf.sqrt(x_real_var + 1e-6) - tf.sqrt(x_fake_var + 1e-6)))
+            y_true = x
+            y_pred = generator(z)
+            y_pred = supervisor(y_pred)
+            y_pred = recovery(y_pred)
+            y_true_mean, y_true_var = tf.nn.moments(y_true, axes=[0])
+            y_pred_mean, y_pred_var = tf.nn.moments(y_pred, axes=[0])
+            v1 = tf.reduce_mean(tf.abs(y_true_mean - y_pred_mean))
+            v2 = tf.reduce_mean(tf.abs(tf.sqrt(y_true_var + 1e-6) - tf.sqrt(y_pred_var + 1e-6)))
             moment_loss = v1 + v2
 
             loss = supervised_loss + 100 * tf.sqrt(unsupervised_loss) + unsupervised_loss_e + 100 * moment_loss
@@ -154,106 +139,106 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
         var_list = generator.trainable_variables + supervisor.trainable_variables
         gradients = tape.gradient(loss, var_list)
         opt.apply_gradients(zip(gradients, var_list))
-        return loss, supervised_loss, unsupervised_loss, moment_loss
+        return loss
 
     @tf.function
     def test_generator(x, z, timegan, mse, bce):
         embedder, generator, supervisor, recovery, discriminator = timegan
         # supervised loss
-        h = embedder(x)
-        h_pred = supervisor(h)
-        supervised_loss = mse(h[:, 1:, :], h_pred[:, :-1, :])
+        y_true = embedder(x)
+        y_pred = supervisor(y_true)
+        supervised_loss = mse(y_true[:, 1:, :], y_pred[:, :-1, :])
 
         # unsupervised loss
-        y_real = tf.ones((x.shape[0], x.shape[1], 1))
-        h_fake = generator(z)
-        h_fake_sup = supervisor(h_fake)
-        y_fake_sup = discriminator(h_fake_sup)
-        unsupervised_loss = bce(y_real, y_fake_sup)
+        y_true = tf.ones((x.shape[0], x.shape[1], 1))
+        y_pred = generator(z)
+        y_pred = supervisor(y_pred)
+        y_pred = discriminator(y_pred)
+        unsupervised_loss = bce(y_true, y_pred)
 
         # unsupervised loss - E
-        y_real = tf.ones((x.shape[0], x.shape[1], 1))
-        h_fake = generator(z)
-        y_fake = discriminator(h_fake)
-        unsupervised_loss_e = bce(y_real, y_fake)
+        y_true = tf.ones((x.shape[0], x.shape[1], 1))
+        y_pred = generator(z)
+        y_pred = discriminator(y_pred)
+        unsupervised_loss_e = bce(y_true, y_pred)
 
         # moment loss
-        x_real = x
-        h_fake = generator(z)
-        h_fake_sup = supervisor(h_fake)
-        x_fake = recovery(h_fake_sup)
-        
-        x_real_mean, x_real_var = tf.nn.moments(x_real, axes=[0])
-        x_fake_mean, x_fake_var = tf.nn.moments(x_fake, axes=[0])
-        
-        v1 = tf.reduce_mean(tf.abs(x_real_mean - x_fake_mean))
-        v2 = tf.reduce_mean(tf.abs(tf.sqrt(x_real_var + 1e-6) - tf.sqrt(x_fake_var + 1e-6)))
+        y_true = x
+        y_pred = generator(z)
+        y_pred = supervisor(y_pred)
+        y_pred = recovery(y_pred)
+        y_true_mean, y_true_var = tf.nn.moments(y_true, axes=[0])
+        y_pred_mean, y_pred_var = tf.nn.moments(y_pred, axes=[0])
+        v1 = tf.reduce_mean(tf.abs(y_true_mean - y_pred_mean))
+        v2 = tf.reduce_mean(tf.abs(tf.sqrt(y_true_var + 1e-6) - tf.sqrt(y_pred_var + 1e-6)))
         moment_loss = v1 + v2
 
         loss = supervised_loss + 100 * tf.sqrt(unsupervised_loss) + unsupervised_loss_e + 100 * moment_loss
-        return loss, supervised_loss, unsupervised_loss, moment_loss
+        return loss
 
     @tf.function
     def train_embedder(x, timegan, mse, opt):
         embedder, generator, supervisor, recovery, discriminator = timegan
         with tf.GradientTape() as tape:
             # supervised loss
-            h = embedder(x)
-            h_pred = supervisor(h)
-            supervised_loss = mse(h[:, 1:, :], h_pred[:, :-1, :])
+            y_true = embedder(x)
+            y_pred = supervisor(y_true)
+            supervised_loss = mse(y_true[:, 1:, :], y_pred[:, :-1, :])
 
             # reconstruction loss
-            h = embedder(x)
-            x_tilde = recovery(h)
-            reconstruction_loss = 10 * tf.sqrt(mse(x_tilde, x))
+            y_true = embedder(x)
+            y_true = recovery(y_true)
+            y_pred = x
+            reconstruction_loss = 10 * tf.sqrt(mse(y_true, y_pred))
 
             loss = reconstruction_loss + 0.1 * supervised_loss
 
         var_list = embedder.trainable_variables + recovery.trainable_variables
         gradients = tape.gradient(loss, var_list)
         opt.apply_gradients(zip(gradients, var_list))
-        return loss, reconstruction_loss, supervised_loss
+        return loss
 
     @tf.function
     def test_embedder(x, timegan, mse):
         embedder, generator, supervisor, recovery, discriminator = timegan
         # supervised loss
-        h = embedder(x)
-        h_pred = supervisor(h)
-        supervised_loss = mse(h[:, 1:, :], h_pred[:, :-1, :])
+        y_true = embedder(x)
+        y_pred = supervisor(y_true)
+        supervised_loss = mse(y_true[:, 1:, :], y_pred[:, :-1, :])
 
         # reconstruction loss
-        h = embedder(x)
-        x_tilde = recovery(h)
-        reconstruction_loss = 10 * tf.sqrt(mse(x_tilde, x))
+        y_true = embedder(x)
+        y_true = recovery(y_true)
+        y_pred = x
+        reconstruction_loss = 10 * tf.sqrt(mse(y_true, y_pred))
 
         loss = reconstruction_loss + 0.1 * supervised_loss
-        return loss, reconstruction_loss, supervised_loss
+        return loss
 
     @tf.function
     def train_discriminator(x, z, timegan, bce, opt):
         embedder, generator, supervisor, recovery, discriminator = timegan
         with tf.GradientTape() as tape:
             # loss on FN
-            y_real = tf.ones((x.shape[0], x.shape[1], 1))
-            h = embedder(x)
-            y_pred_real = discriminator(h)
-            loss_real = bce(y_real, y_pred_real)
+            y_true = tf.ones((x.shape[0], x.shape[1], 1))
+            y_pred = embedder(x)
+            y_pred = discriminator(y_pred)
+            loss_on_FN = bce(y_true, y_pred)
 
             # loss on FP
-            y_fake = tf.zeros((x.shape[0], x.shape[1], 1))
-            h_fake = generator(z)
-            h_fake_sup = supervisor(h_fake)
-            y_pred_fake_sup = discriminator(h_fake_sup)
-            loss_fake_sup = bce(y_fake, y_pred_fake_sup)
+            y_true = tf.zeros((x.shape[0], x.shape[1], 1))
+            y_pred = generator(z)
+            y_pred = supervisor(y_pred)
+            y_pred = discriminator(y_pred)
+            loss_on_FP = bce(y_true, y_pred)
 
             # loss on FP - E
-            y_fake = tf.zeros((x.shape[0], x.shape[1], 1))
-            h_fake = generator(z)
-            y_pred_fake = discriminator(h_fake)
-            loss_fake = bce(y_fake, y_pred_fake)           
+            y_true = tf.zeros((x.shape[0], x.shape[1], 1))
+            y_pred = generator(z)
+            y_pred = discriminator(y_pred)
+            loss_on_FP_E = bce(y_true, y_pred)           
 
-            loss = loss_real + loss_fake_sup + loss_fake
+            loss = loss_on_FN + loss_on_FP + loss_on_FP_E
 
         var_list = discriminator.trainable_variables
         gradients = tape.gradient(loss, var_list)
@@ -264,25 +249,25 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     def test_discriminator(x, z, timegan, bce):
         embedder, generator, supervisor, recovery, discriminator = timegan
         # loss on FN
-        y_real = tf.ones((x.shape[0], x.shape[1], 1))
-        h = embedder(x)
-        y_pred_real = discriminator(h)
-        loss_real = bce(y_real, y_pred_real)
+        y_true = tf.ones((x.shape[0], x.shape[1], 1))
+        y_pred = embedder(x)
+        y_pred = discriminator(y_pred)
+        loss_on_FN = bce(y_true, y_pred)
 
         # loss on FP
-        y_fake = tf.zeros((x.shape[0], x.shape[1], 1))
-        h_fake = generator(z)
-        h_fake_sup = supervisor(h_fake)
-        y_pred_fake_sup = discriminator(h_fake_sup)
-        loss_fake_sup = bce(y_fake, y_pred_fake_sup)
+        y_true = tf.zeros((x.shape[0], x.shape[1], 1))
+        y_pred = generator(z)
+        y_pred = supervisor(y_pred)
+        y_pred = discriminator(y_pred)
+        loss_on_FP = bce(y_true, y_pred)
 
         # loss on FP - E
-        y_fake = tf.zeros((x.shape[0], x.shape[1], 1))
-        h_fake = generator(z)
-        y_pred_fake = discriminator(h_fake)
-        loss_fake = bce(y_fake, y_pred_fake)           
+        y_true = tf.zeros((x.shape[0], x.shape[1], 1))
+        y_pred = generator(z)
+        y_pred = discriminator(y_pred)
+        loss_on_FP_E = bce(y_true, y_pred)           
 
-        loss = loss_real + loss_fake_sup + loss_fake
+        loss = loss_on_FN + loss_on_FP + loss_on_FP_E
         return loss
 
     # Inicializar historiales de pérdida
@@ -300,9 +285,6 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     for epoch in trange(epochs):
         batch = get_batch()
         test_batch = get_test_batch()
-        
-        # Asegúrate de que ambos lotes tienen el mismo tamaño
-        assert batch.shape[0] == test_batch.shape[0], "Los lotes de train y test deben tener el mismo tamaño"
         
         train_loss = train_autoencoder(batch, timegan_tuple, mse, opt_autoencoder)
         test_loss = test_autoencoder(test_batch, timegan_tuple, mse)
@@ -334,17 +316,15 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
             test_batch = get_test_batch()
             random_vector = get_random_vector()
             
-            train_loss_tuple = train_generator(batch, random_vector, timegan_tuple, mse, bce, opt_generator)
-            test_loss_tuple = test_generator(test_batch, random_vector, timegan_tuple, mse, bce)
+            train_batch_gen_loss = train_generator(batch, random_vector, timegan_tuple, mse, bce, opt_generator)
+            test_batch_gen_loss = test_generator(test_batch, random_vector, timegan_tuple, mse, bce)
+            gen_train_loss += train_batch_gen_loss.numpy()
+            gen_test_loss += test_batch_gen_loss.numpy()
             
-            gen_train_loss += train_loss_tuple[0].numpy()
-            gen_test_loss += test_loss_tuple[0].numpy()
-            
-            emb_train_loss_tuple = train_embedder(batch, timegan_tuple, mse, opt_embedder)
-            emb_test_loss_tuple = test_embedder(test_batch, timegan_tuple, mse)
-            
-            emb_train_loss += emb_train_loss_tuple[0].numpy()
-            emb_test_loss += emb_test_loss_tuple[0].numpy()
+            train_batch_emb_loss = train_embedder(batch, timegan_tuple, mse, opt_embedder)
+            test_batch_emb_loss = test_embedder(test_batch, timegan_tuple, mse)
+            emb_train_loss += train_batch_emb_loss.numpy()
+            emb_test_loss += test_batch_emb_loss.numpy()
 
         # Training discriminator
         batch = get_batch()
@@ -406,20 +386,6 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     plt.tight_layout()
     plt.savefig('timegan_training_loss.png')
     plt.show()
-    
-    # Al finalizar, imprimir información sobre la generación
-    print("\nPropiedades estadísticas después del entrenamiento:")
-    
-    # Generar algunas secuencias para comparar
-    random_vector = get_random_vector()
-    h_fake = timegan_tuple[1](random_vector)  # generator
-    h_fake_sup = timegan_tuple[2](h_fake)     # supervisor
-    x_fake = timegan_tuple[3](h_fake_sup)     # recovery
-    
-    batch = get_batch()
-    
-    print(f"Datos reales - Media: {np.mean(batch):.4f}, Desv. Est.: {np.std(batch):.4f}")
-    print(f"Datos generados - Media: {np.mean(x_fake):.4f}, Desv. Est.: {np.std(x_fake):.4f}")
 
     return timegan_tuple
 
