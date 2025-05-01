@@ -34,14 +34,15 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     # convert to float32 (because random_vector's type is float32, should be matched)
     x = x.astype(np.float32)
     
-    # Dividir los datos en train y test respetando el orden cronológico
+    # Mezclar los índices de los datos para una partición aleatoria
     n_samples = x.shape[0]
+    indices = np.random.permutation(n_samples)
     train_size = int(n_samples * (1 - test_size))
-    
-    # Los primeros train_size elementos son para entrenamiento
-    x_train = x[:train_size]
-    # Los últimos n_samples - train_size elementos son para prueba
-    x_test = x[train_size:]
+    train_indices = indices[:train_size]
+    test_indices = indices[train_size:]
+
+    x_train = x[train_indices]
+    x_test = x[test_indices]
     
     # Verificar las diferencias estadísticas entre train y test antes de empezar
     print("Verificando estadísticas de los conjuntos:")
@@ -404,7 +405,7 @@ def timegan_train(x, timegan_tuple, epochs, batch_size, learning_rate, test_size
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('timegan_training_loss.png')
+    plt.savefig('../images/timegan_training_loss.png')
     plt.show()
     
     # Al finalizar, imprimir información sobre la generación
