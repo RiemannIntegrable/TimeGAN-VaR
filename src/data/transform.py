@@ -35,15 +35,18 @@ def add_features(df, window_sizes=[5, 10, 20]):
     Returns:
         DataFrame con características adicionales
     """
+    # Crear una copia explícita al inicio de la función
+    df = df.copy()
+    
     for window in window_sizes:
         # Media móvil de precios
-        df[f'MA_{window}'] = df['Close'].rolling(window=window).mean()
+        df.loc[:, f'MA_{window}'] = df['Close'].rolling(window=window).mean()
         
         # Volatilidad histórica (desviación estándar de rendimientos)
-        df[f'Volatility_{window}'] = df['Returns'].rolling(window=window).std()
+        df.loc[:, f'Volatility_{window}'] = df['Returns'].rolling(window=window).std()
         
         # Rendimiento acumulado en la ventana
-        df[f'Return_{window}'] = df['Returns'].rolling(window=window).sum()
+        df.loc[:, f'Return_{window}'] = df['Returns'].rolling(window=window).sum()
     
     # Eliminar filas con NaNs (primeras filas donde no hay suficientes datos para las ventanas)
     df = df.dropna()
