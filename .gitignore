@@ -58,16 +58,10 @@ serving/
 *checkpoint
 checkpoint
 
-# Datos (opcional, quizás quieras incluir algunos ejemplos y excluir otros)
-data
-!data/*/.gitkeep
-!data/input/portafolio.csv
-!data/processed/portafolio_normalizado.csv
-
 # Generados por tex
-tex/*/
-!tex/*/proyecto_final.tex
-!tex/*/proyecto_final.pdf
+tex/
+!tex/proyecto_final.tex
+!tex/proyecto_final.pdf
 
 # Resultados de ejecución
 results/
