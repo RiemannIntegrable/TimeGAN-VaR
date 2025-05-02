@@ -58,6 +58,12 @@ serving/
 *checkpoint
 checkpoint
 
+# Dentro de data
+data/*
+!data/input/portafolio.csv
+!data/processed/portafolio_normalizado.csv
+!data/output/.gitkeep
+
 # Generados por tex
 tex/*
 !tex/*.tex
