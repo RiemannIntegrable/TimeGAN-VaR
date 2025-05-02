@@ -57,6 +57,8 @@
 \usepackage[all]{xy}
 \usepackage{fontspec}
 \newfontfamily\mononokifont{Mononoki Nerd Font Mono}
+\let\oldtexttt\texttt
+\renewcommand{\texttt}[1]{{\mononokifont #1}}
 
 %% ==== PAQUETES PARA FORMATO Y ESTRUCTURA ====
 \usepackage{
@@ -74,6 +76,10 @@
 \usepackage{listings}
 \usepackage[style=ieee]{biblatex}
 \usepackage{hyperref}
+\usepackage{dirtree}
+\usepackage{fontspec}
+\usepackage{xcolor}
+
 
 %% ==== DEFINICIÓN DE SÍMBOLOS MATEMÁTICOS ====
 % Alfabeto matemático (conjunto estándar)
@@ -168,7 +174,8 @@
   keepspaces=true,
   showstringspaces=false,
   tabsize=1,
-  lineskip=2pt
+  lineskip=1pt,  % Valor negativo para acercar las líneas
+  basewidth=0.5em  % Ajusta el ancho base de los caracteres
 }
 
 %% ==== CONFIGURACIÓN DE CÓDIGO PYTHON ====
@@ -387,45 +394,207 @@ A
 
 La estructura del repositorio se organiza de la siguiente manera:
 
-\begin{lstlisting}[style=directorytree]
-  TimeGAN-VaR/
-  ├── data/
-  │   ├── input/                # Datos originales para conformar el portafolio
-  │   ├── processed/            # Retornos logarítmicos procesados del portafolio
-  │   └── output/               # Resultados y métricas exportadas del análisis
-  ├── images/                   # Visualizaciones y diagramas generados
-  ├── models/                   # Modelos TimeGAN entrenados (.h5)
-  ├── notebooks/                # Cuadernos Jupyter interactivos
-  │   ├── implementacion.ipynb  # Notebook principal
-  │   └── yfinance.ipynb        # Exploración de datos de Yahoo Finance
-  ├── src/                      # Código fuente modular del proyecto
-  │   ├── data/
-  │   │   ├── __init__.py
-  │   │   ├── loader.py         # Carga y validación de datos financieros
-  │   │   ├── transform.py      # Transformaciones para series temporales
-  │   │   └── windowing.py      # Creación de ventanas para entrenamiento
-  │   ├── models/
-  │   │   ├── __init__.py
-  │   │   ├── timegan.py        # Arquitectura TimeGAN completa
-  │   │   └── var_model.py      # Cálculo de VaR con distintas metodologías
-  │   ├── utils/
-  │   │   ├── __init__.py
-  │   │   ├── evaluation.py     # Métricas de evaluación y validación
-  │   │   └── visualization.py  # Generación de gráficos y visualizaciones
-  │   └── __init__.py           # Inicialización del paquete principal
-  ├── tex/
-  │   └── proyecto_final.tex
-  ├── .gitignore                # Archivos y directorios excluidos del repositorio
-  ├── environment.yml           # Especificación del entorno Conda
-  ├── LICENCE                   # Licencia MIT del proyecto
-  └── README.md                 # Documentación principal
-  \end{lstlisting}
+% Configurar el estilo de dirtree con mononoki
+\renewcommand*\DTstyle{\mononokifont\small}
 
-\subsection{Conformacion del portafolio}
+% Definir un comando para los comentarios en verde
+\newcommand{\DTcommentgreen}[1]{\textcolor{green!70!black}{\ttfamily\# #1}}
+
+\begin{center}
+  \begin{tabular}{|p{0.97\textwidth}|}
+    \hline
+    \multicolumn{1}{|c|}{
+        \rule{0pt}{2.5ex}
+        \textbf{\large Estructura de carpetas}
+        \rule{0pt}{2.5ex}
+    } \\
+    \hline
+    \begin{minipage}{0.96\textwidth}
+        \vspace{0.5em}
+        % Definir un comando local para los comentarios en verde
+        \newcommand{\dcomment}[1]{\textcolor{green!60!black}{\mononokifont\# #1}}
+        
+        % Configurar temporalmente el estilo de dirtree con más espaciado
+        \renewcommand*\DTstyle{\mononokifont\small}
+        \setlength{\DTbaselineskip}{1.3em} % Aumentar el espaciado vertical
+        
+        \dirtree{%
+        .1 TimeGAN-VaR/.
+        .2 data/.
+        .3 input/ \dcomment{Datos originales para conformar el portafolio}.
+        .3 processed/ \dcomment{Retornos logarítmicos procesados del portafolio}.
+        .3 output/ \dcomment{Resultados y métricas exportadas del análisis}.
+        .2 images/ \dcomment{Visualizaciones y diagramas generados}.
+        .2 models/ \dcomment{Modelos TimeGAN entrenados (.h5)}.
+        .2 notebooks/.
+        .3 implementacion.ipynb \dcomment{Notebook principal}.
+        .2 src/ \dcomment{Código fuente modular del proyecto}.
+        .3 data/.
+        .4 \_\_init\_\_.py.
+        .4 loader.py \dcomment{Carga y validación de datos financieros}.
+        .4 transform.py \dcomment{Transformaciones para series temporales}.
+        .4 windowing.py \dcomment{Creación de ventanas para entrenamiento}.
+        .3 models/.
+        .4 \_\_init\_\_.py.
+        .4 timegan.py \dcomment{Arquitectura TimeGAN completa}.
+        .4 var\_model.py \dcomment{Cálculo de VaR con distintas metodologías}.
+        .3 utils/.
+        .4 \_\_init\_\_.py.
+        .4 evaluation.py \dcomment{Métricas de evaluación y validación}.
+        .4 visualization.py \dcomment{Generación de gráficos y visualizaciones}.
+        .3 \_\_init\_\_.py \dcomment{Inicialización del paquete principal}.
+        .2 tex/.
+        .3 proyecto\_final.tex.
+        .2 .gitignore \dcomment{Archivos y directorios excluidos del repositorio}.
+        .2 environment.yml \dcomment{Especificación del entorno Conda}.
+        .2 LICENCE \dcomment{Licencia MIT del proyecto}.
+        .2 README.md \dcomment{Documentación principal}.
+        }
+        \vspace{0.5em}
+    \end{minipage} \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsection{Conformación del portafolio}
+
+La función \texttt{build\_multi\_asset\_portfolio}, implementada en el módulo \texttt{src/data/transform.py}, permite construir un portafolio financiero diversificado a partir de una combinación de activos, asignando a cada uno un peso específico. El procedimiento es el siguiente:
+
+\begin{itemize}
+    \item \textbf{Validación de entradas:} Se verifica que la cantidad de tickers coincida con la cantidad de pesos y que la suma de los pesos sea exactamente 1.
+    \item \textbf{Descarga de datos:} Para cada ticker proporcionado (por ejemplo, acciones, bonos, ETFs, oro), se descargan los precios históricos usando la librería \texttt{yfinance}.
+    \item \textbf{Alineación temporal:} Se determina la fecha de inicio común más reciente entre todos los activos, de modo que el portafolio solo considere el periodo en el que existen datos para todos los instrumentos.
+    \item \textbf{Cálculo del portafolio:} Se calcula el valor del portafolio en cada fecha como la suma ponderada de los precios de cierre de cada activo, usando los pesos especificados.
+    \item \textbf{Salida:} La función retorna un \texttt{DataFrame} con las columnas \texttt{Date} y \texttt{Close}, representando la evolución temporal del portafolio.
+\end{itemize}
+
+A continuación se muestra un ejemplo de cómo llamar esta función en Python para construir un portafolio con cuatro activos y pesos personalizados:
+
+\begin{lstlisting}[language=Python, caption=Ejemplo de uso de build_multi_asset_portfolio]
+from src.data.transform import build_multi_asset_portfolio
+
+# Definir los tickers y los pesos del portafolio
+tickers = ("^GSPC", "AGG", "DBC", "GLD") # Portafolio de acciones, bonos, ETFs y oro
+weights = (0.5, 0.3, 0.1, 0.1)      # Pesos iguales para cada activo
+
+# Construir el portafolio
+portfolio_df = build_multi_asset_portfolio(tickers, weights)
+
+# Visualizar las primeras filas
+sns.set_style("whitegrid")
+plt.figure(figsize=(10, 5))
+sns.lineplot(x="Date", y="Close", data=portfolio_df, color="seagreen", linewidth=2)
+plt.title("Evolución del valor del portafolio")
+plt.xlabel("Fecha")
+plt.ylabel("Valor de cierre ponderado")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/historia_portafolio.png}
+\end{figure}
 
 \subsection{Entrenamiento de la red neuronal}
 
-\subsection{Cálculo del VaR con el modelo TimeGAN}
+Para entrenar la arquitectura TimeGAN, primero es necesario transformar la serie temporal del portafolio en ventanas de tamaño fijo, lo que permite que la red neuronal aprenda patrones temporales de longitud consistente. En este proyecto, utilizamos ventanas de 250 días, que corresponden aproximadamente a un año de datos bursátiles.\\
+
+La creación de estas ventanas se realiza mediante la función \texttt{create\_windows} del módulo \texttt{src/data/windowing.py}. Esta función toma como entrada el DataFrame de retornos (o precios) y lo divide en subconjuntos secuenciales de longitud especificada (\texttt{window\_size}), permitiendo además definir el \texttt{stride} (paso entre ventanas) y la columna objetivo si se requiere.\\
+
+Previo a la creación de ventanas, los datos del portafolio se transforman y normalizan utilizando funciones del módulo \texttt{src/data/transform.py}, como \texttt{calculate\_returns} para obtener los retornos logarítmicos y \texttt{normalize\_data} para escalar los valores y facilitar el entrenamiento de la red.\\
+
+A continuación se muestra un ejemplo de cómo se utilizan estas funciones en el notebook principal:
+
+\begin{lstlisting}[language=Python, caption=Preparación de ventanas para entrenamiento]
+from src.data.transform import calculate_returns, normalize_data
+from src.data.windowing import create_windows
+
+# Calcular retornos logarítmicos
+returns_df = calculate_returns(portfolio_df, method='log')
+
+# Normalizar los datos
+returns_norm, norm_params = normalize_data(returns_df, features=['Close'])
+
+# Crear ventanas de 250 días con stride 1
+windows = create_windows(returns_norm, window_size=250, stride=1)
+\end{lstlisting}
+
+El modelo TimeGAN, implementado en \texttt{src/models/timegan.py}, combina una red generativa adversaria (GAN) con componentes supervisados y autoencoders para preservar la dinámica temporal de las series. La arquitectura incluye los siguientes módulos principales:
+
+\begin{itemize}
+    \item \textbf{Embedder y Recovery:} Codifican y decodifican las series temporales originales a un espacio latente.
+    \item \textbf{Generator y Supervisor:} El generador produce secuencias sintéticas en el espacio latente, mientras que el supervisor ayuda a capturar dependencias temporales a largo plazo.
+    \item \textbf{Discriminator:} Distingue entre secuencias reales y sintéticas en el espacio latente.
+\end{itemize}
+
+Durante el entrenamiento, se utilizan varias funciones de pérdida (\textit{loss functions}):
+
+\begin{itemize}
+    \item \textbf{Pérdida de autoencoder (MSE):} Minimiza la diferencia entre la serie original y la reconstruida por el embedder y recovery.
+    \item \textbf{Pérdida supervisada (MSE):} Obliga al supervisor a predecir correctamente los siguientes pasos en el espacio latente.
+    \item \textbf{Pérdida adversaria (BCE):} El generador intenta engañar al discriminador, que a su vez trata de distinguir entre datos reales y sintéticos.
+    \item \textbf{Pérdida total:} Es una combinación ponderada de las anteriores, siguiendo la metodología propuesta en el artículo original de TimeGAN.
+\end{itemize}
+
+La división entre entrenamiento y prueba (\textit{train/test split}) se realiza dentro de la función \texttt{timegan\_train} del módulo \texttt{timegan.py}, donde se reserva un porcentaje de las ventanas para validación (por defecto, 20\%). El entrenamiento se realiza únicamente sobre el conjunto de entrenamiento, mientras que el conjunto de prueba se utiliza para monitorear el desempeño y evitar sobreajuste.\\
+
+A continuación se muestra un ejemplo de cómo se llama la función de entrenamiento de TimeGAN en el notebook principal:
+
+\begin{lstlisting}[language=Python, caption=Entrenamiento de TimeGAN]
+from src.models.timegan import timegan_init, timegan_train
+
+# Inicializar la arquitectura de TimeGAN
+timegan_tuple = timegan_init(
+    time_series_len=250,    # Longitud de la ventana
+    features=returns_norm.shape[-1], # Número de variables
+    rnn_units=64,           # Unidades RNN por capa
+    rnn_layers=6            # Número de capas RNN
+)
+
+# Entrenar el modelo TimeGAN
+history = timegan_train(
+    windows,                # Ventanas de entrenamiento
+    timegan_tuple,          # Arquitectura inicializada
+    epochs=4000,            # Número de épocas
+    batch_size=16,          # Tamaño de lote
+    learning_rate=0.0005,   # Tasa de aprendizaje
+    test_size=0.2           # Proporción de datos para test
+)
+
+# Exportar el modelo entrenado
+syn_generator = timegan_export_generator(timegan_tuple)
+\end{lstlisting}
+
+\subsection{Metodo de Montecarlo para el VaR usando los datos sintéticos de TimeGAN}
+
+Lo primero que realizamos es generar los datos sintéticos de la serie temporal del portafolio, para esto, usamos la función \texttt{generator\_gen} del módulo \texttt{src/models/timegan.py}. Esta función toma como entrada el modelo TimeGAN entrenado y el número de muestras a generar. Luego, preparamos los datos sintéticos para poder evaluar que tan similar es el comportamiento de los datos sintéticos con el comportamiento del portafolio real mediante \texttt{prepare\_data\_for\_evaluation} para luego calcular las metricas ``\textit{Divergencia KL, Discriminative score}'' y ``\textit{Predictive score}''. 
+
+\begin{lstlisting}[language=Python, caption=Generación de datos sintéticos]
+from src.models.timegan import generator_gen
+
+# Generar 5000 muestras sintéticas
+synthetic_data = generator_gen(syn_generator, num_samples=5000)
+
+# Preparar los datos para evaluación
+from src.utils.evaluation import prepare_data_for_evaluation, calculate_kl_divergence, discriminative_score, predictive_score
+
+real_windows, synthetic_windows = prepare_data_for_evaluation(
+    returns_norm['Close'].to_numpy(),  # O la columna de retornos normalizados correspondiente
+    synthetic_data,
+    window_size=250,
+    stride=50
+)
+
+# Calcular métricas de similitud
+kl_div = calculate_kl_divergence(real_windows, synthetic_windows)
+disc_score = discriminative_score(real_windows, synthetic_windows)
+pred_score = predictive_score(real_windows, synthetic_windows)
+
+print(f"Divergencia KL: {kl_div:.4f}")
+print(f"Discriminative Score: {disc_score:.4f}")
+print(f"Predictive Score (MSE): {pred_score:.4f}")
+\end{lstlisting}
 
 \subsection{Cálculo del VaR con metodos convencionales}
 
