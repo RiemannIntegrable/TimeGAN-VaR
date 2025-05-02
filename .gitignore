@@ -59,6 +59,9 @@ serving/
 checkpoint
 
 # Generados por tex
+tex/*
+!tex/*.tex
+!tex/*.pdf
 tex/*.dpth
 tex/*.auxlock
 tex/*.log
