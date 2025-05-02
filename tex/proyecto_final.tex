@@ -385,8 +385,30 @@ Implementar y evaluar la arquitectura TimeGAN como metodología alternativa para
 \section{Marco teórico}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.\\
 
-\section{Metodología}
+\subsection{Valor en Riesgo (VaR)}
 A
+
+\subsection{Redes Neuronales Recurrentes (RNN)}
+A
+
+\subsection{Redes Generativas Adversarias (GAN)}
+A
+
+\subsection{TimeGAN}
+A
+
+\section{Metodología}
+La metodología seguida en este proyecto se basa en la implementación y adaptación de la arquitectura TimeGAN, propuesta por Yoon et al. (2019)~\cite{yoon2019timegan}, para la generación de series temporales sintéticas y el cálculo del Valor en Riesgo (VaR) de un portafolio financiero diversificado. Para ello, partimos del repositorio original de TimeGAN en Keras desarrollado por gusxo~\cite{gusxo2021timegan_keras}, sobre el cual realizamos un fork y adaptamos el código a las necesidades específicas del proyecto, modularizando y documentando cada componente en el directorio \texttt{src/}.
+El flujo general de trabajo es el siguiente:
+\begin{enumerate}
+\item \textbf{Preparación del entorno computacional:} Para aprovechar la aceleración por GPU durante el entrenamiento de redes neuronales, instalamos en WSL2 los controladores CUDA, cuDNN y cdutils, asegurando la compatibilidad con TensorFlow 2 y Keras. Posteriormente, creamos un entorno de desarrollo reproducible utilizando \texttt{conda}, cuyas dependencias y versiones específicas se encuentran detalladas en el archivo \texttt{environment.yml}.
+\item \textbf{Estructuración modular del código:} Todo el código fuente necesario para la implementación del proyecto se organiza en el directorio \texttt{src/}, donde se desarrollan funciones para la carga, transformación y procesamiento de datos, creación de ventanas temporales, entrenamiento y evaluación de modelos, así como visualización y cálculo de métricas. Esta modularidad permite que el notebook principal (\texttt{notebooks/implementacion.ipynb}) se limite a orquestar el flujo de trabajo llamando a las funciones previamente definidas, facilitando la reproducibilidad y la claridad del proceso.
+\item \textbf{Implementación de TimeGAN:} La arquitectura TimeGAN se implementa en el módulo \texttt{src/models/timegan.py}, siguiendo la lógica y estructura propuestas por Yoon et al. (2019) y adaptadas por gusxo. Se incluyen funciones para la inicialización, entrenamiento, exportación y generación de datos sintéticos, así como utilidades para guardar y cargar modelos entrenados.
+\item \textbf{Procesamiento y conformación del portafolio:} Utilizando funciones del módulo \texttt{src/data/transform.py}, se construye un portafolio financiero diversificado a partir de diferentes activos, asignando pesos personalizados y calculando los retornos logarítmicos. Los datos se normalizan y se dividen en ventanas temporales mediante \texttt{src/data/windowing.py}, preparándolos para el entrenamiento de la red neuronal.
+\item \textbf{Entrenamiento y generación de datos sintéticos:} El modelo TimeGAN se entrena sobre las ventanas de datos reales, y posteriormente se utiliza para generar trayectorias sintéticas del portafolio. Estas trayectorias se evalúan mediante métricas de similitud y se emplean para la estimación del VaR utilizando simulación de Monte Carlo.
+\item \textbf{Comparación con métodos convencionales:} Finalmente, se calcula el VaR del portafolio utilizando metodologías tradicionales (paramétrica, simulación histórica y Monte Carlo clásico) y se comparan los resultados con los obtenidos a partir de los datos sintéticos generados por TimeGAN.
+\end{enumerate}
+Esta metodología garantiza un flujo de trabajo reproducible, escalable y fácilmente extensible, permitiendo evaluar rigurosamente la eficacia de TimeGAN como herramienta para la gestión de riesgos financieros.
 
 \section{Implementación en Python}
 
@@ -472,6 +494,7 @@ A continuación se muestra un ejemplo de cómo llamar esta función en Python pa
 
 \begin{lstlisting}[language=Python, caption=Ejemplo de uso de build_multi_asset_portfolio]
 from src.data.transform import build_multi_asset_portfolio
+from src.utils.visualization import plot_portfolio_value
 
 # Definir los tickers y los pesos del portafolio
 tickers = ("^GSPC", "AGG", "DBC", "GLD") # Portafolio de acciones, bonos, ETFs y oro
@@ -481,14 +504,7 @@ weights = (0.5, 0.3, 0.1, 0.1)      # Pesos iguales para cada activo
 portfolio_df = build_multi_asset_portfolio(tickers, weights)
 
 # Visualizar las primeras filas
-sns.set_style("whitegrid")
-plt.figure(figsize=(10, 5))
-sns.lineplot(x="Date", y="Close", data=portfolio_df, color="seagreen", linewidth=2)
-plt.title("Evolución del valor del portafolio")
-plt.xlabel("Fecha")
-plt.ylabel("Valor de cierre ponderado")
-plt.tight_layout()
-plt.show()
+plot_portfolio_value(portfolio_df)
 \end{lstlisting}
 
 \begin{figure}[H]
@@ -548,8 +564,8 @@ from src.models.timegan import timegan_init, timegan_train
 timegan_tuple = timegan_init(
     time_series_len=250,    # Longitud de la ventana
     features=returns_norm.shape[-1], # Número de variables
-    rnn_units=64,           # Unidades RNN por capa
-    rnn_layers=6            # Número de capas RNN
+    rnn_units=32,           # Unidades RNN por capa
+    rnn_layers=4            # Número de capas RNN
 )
 
 # Entrenar el modelo TimeGAN
@@ -557,13 +573,17 @@ history = timegan_train(
     windows,                # Ventanas de entrenamiento
     timegan_tuple,          # Arquitectura inicializada
     epochs=4000,            # Número de épocas
-    batch_size=16,          # Tamaño de lote
-    learning_rate=0.0005,   # Tasa de aprendizaje
+    batch_size=164,          # Tamaño de lote
+    learning_rate=0.001,   # Tasa de aprendizaje
     test_size=0.2           # Proporción de datos para test
 )
 
 # Exportar el modelo entrenado
 syn_generator = timegan_export_generator(timegan_tuple)
+\end{lstlisting}
+
+\begin{lstlisting}[style=PyOutput, caption=Resultados de las métricas]
+a
 \end{lstlisting}
 
 \subsection{Metodo de Montecarlo para el VaR usando los datos sintéticos de TimeGAN}
@@ -594,6 +614,12 @@ pred_score = predictive_score(real_windows, synthetic_windows)
 print(f"Divergencia KL: {kl_div:.4f}")
 print(f"Discriminative Score: {disc_score:.4f}")
 print(f"Predictive Score (MSE): {pred_score:.4f}")
+\end{lstlisting}
+
+\begin{lstlisting}[style=PyOutput, caption=Resultados de las métricas]
+Divergencia KL: _____
+Discriminative Score: _____
+Predictive Score (MSE): _____
 \end{lstlisting}
 
 \subsection{Cálculo del VaR con metodos convencionales}

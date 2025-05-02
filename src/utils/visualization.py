@@ -237,3 +237,19 @@ def plot_synthetic_returns(synthetic_windows):
     
     plt.tight_layout()
     return plt.gcf()
+
+def plot_portfolio_value(portfolio_df):
+    """
+    Visualiza la evolución histórica del valor del portafolio.
+
+    Args:
+        portfolio_df: DataFrame con al menos las columnas 'Date' y 'Close'.
+    """
+    sns.set_style("whitegrid")
+    plt.figure(figsize=(10, 5))
+    sns.lineplot(x="Date", y="Close", data=portfolio_df, color="seagreen", linewidth=2)
+    plt.title("Evolución del valor del portafolio")
+    plt.xlabel("Fecha")
+    plt.ylabel("Valor de cierre ponderado")
+    plt.tight_layout()
+    plt.show()
