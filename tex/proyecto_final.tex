@@ -35,6 +35,7 @@
   bigints, 
   fixmath
 }
+\usepackage{makecell}
 \providecommand{\norm}[1]{\lVert#1\rVert}
 
 %% ==== PAQUETES PARA GRÁFICOS Y DIAGRAMAS ====
@@ -68,6 +69,7 @@
 %% ==== PAQUETES PARA CÓDIGO Y BIBLIOGRAFÍA ====
 \usepackage{listings}
 \usepackage[style=ieee]{biblatex}
+\usepackage{hyperref}
 
 %% ==== DEFINICIÓN DE SÍMBOLOS MATEMÁTICOS ====
 % Alfabeto matemático (conjunto estándar)
@@ -151,6 +153,40 @@
 % Símbolo de fin de demostración
 \renewcommand\qedsymbol{$\blacksquare$}
 
+%% ==== CONFIGURACIÓN DE CÓDIGO PYTHON ====
+\lstdefinelanguage{Python}{
+    morekeywords={def, return, if, elif, else, for, while, break, continue, pass, import, from, as, class, try, except, finally, with, lambda, yield, True, False, None, in, is, not, and, or, global, nonlocal, assert, del, raise, print},
+    otherkeywords={self},
+    keywordstyle=\color{blue!70!black}\bfseries,
+    comment=[l]{\#},
+    commentstyle=\color{green!50!black}\itshape,
+    stringstyle=\color{red!60!black},
+    morestring=[b]',
+    morestring=[b]",
+    showstringspaces=false,
+    sensitive=true
+}
+
+\lstdefinestyle{PyOutput}{
+    basicstyle=\mononokifont\small,
+    backgroundcolor=\color{black!3},
+    breaklines=true,
+    frame=leftline,
+    framerule=3pt,
+    rulecolor=\color{green!60!black}, % Verde bonito para indicar ejecución exitosa
+    framesep=3pt,
+    numberstyle=\tiny\color{gray},
+    numbers=none,
+    commentstyle={},
+    keywordstyle={},
+    stringstyle={},
+    moredelim=**[is][\color{darkgreen!90!black}\bfseries]{@@}{@@}, % para resaltar resultados importantes
+    captionpos=f,
+    aboveskip=1.2em,
+    belowskip=1.2em,
+    boxpos=t
+}
+
 %% ==== CONFIGURACIÓN DE CÓDIGO R ====
 \lstdefinelanguage{R} {
     morekeywords={if, else, repeat, while, function, for, in, next, break, return, library, require, data.frame},
@@ -204,6 +240,57 @@
     framesep=3pt
 }
 
+%% ==== ESTILOS DE LOS CODIGOS EN R ==== %%
+
+% Primero el código R
+%\begin{lstlisting}[caption=Análisis de datos]
+%  # Cargamos datos
+%  datos <- read.csv("datos.csv")
+%  \end{lstlisting}
+%  
+%  % Y ahora el output
+%  \begin{lstlisting}[style=Routput, caption=Resultado del análisis]
+%     Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+%    150.0   165.0   172.0   173.5   180.0   195.0 
+%  \end{lstlisting}
+
+%% ==== Estilos de los codigos en Python ==== %%
+
+% Bloque de código Python
+%\begin{lstlisting}[language=Python, caption=Ejemplo de código Python]
+%  def suma(a, b):
+%      return a + b
+%  
+%  print(suma(2, 3))
+%  \end{lstlisting}
+  
+  % Bloque de output de Python
+%  \begin{lstlisting}[style=PyOutput, caption=Output de Python]
+%  5
+%  \end{lstlisting}
+
+% ==== ESTILO DE CONTENIDO ====
+\newenvironment{cuadrocontenido}{
+  \begin{center}
+  \begin{tabular}{|p{0.97\textwidth}|}
+    \hline
+    \multicolumn{1}{|c|}{
+        \rule{0pt}{2.5ex}
+        \textbf{\large Contenido}
+        \rule{0pt}{2.5ex}
+    } \\
+    \hline
+    \begin{minipage}{0.96\textwidth}
+        \centering
+        \vspace{0.5em}
+}{%
+        \vspace{0.5em}
+    \end{minipage} \\
+    \hline
+  \end{tabular}
+  \end{center}
+}
+
 %% ==== ESTILO DE PRIMERA PÁGINA ====
 \fancypagestyle{firstpage}{
   \renewcommand{\headrulewidth}{0cm}
@@ -216,16 +303,17 @@
       \begin{tabular}{|ccc|r|}
            \hline
            \multirow{13}{*}{\includegraphics[scale=0.13]{../images/Escudo_de_la_Universidad_Nacional_de_Colombia_(2016).png}} &  &  &  \\
-           & {\LARGE Universidad Nacional de Colombia} &  & Jose Miguel Acuña Hernandez \\
-           &  &  & jacunah@unal.edu.co \\
-           &  {\large Facultad de ciencias} &  &  \\
-           &  &  & Persona2 \\
-           &  {\large Departamento de Matemáticas} &  & persona2@unal.edu.co \\
+           & {\LARGE Universidad Nacional de Colombia} &  & \textbf{Estudiante:} \\
+           &  &  & Jose Miguel Acuña Hernandez \\
+           &  {\large Facultad de ciencias} &  & jacunah@unal.edu.co \\
            &  &  &  \\
-           &  {\large Introducción a la modelación predictiva 2024-II} &  & Persona3 \\
-           &  &  & persona3@unal.edu.co \\
-           & {\Large Platilla de Latex} &  &  \\
-           &  &  &  \\
+           &  {\large Departamento de matemáticas} &  & \textbf{Profesor:} \\
+           &  &  & Oscar Javier Lopez Alfonso \\
+           &  {\large Administración cuantitativa de} &  & ojlopeza@unal.edu.co \\
+           & {\large riesgos financieros} &  &  \\
+           &  &  & \textbf{Repositorio:} \\
+           & {\Large TimeGAN para el cálculo del VaR}  &  & \href{https://github.com/RiemannInterable/TimeGAN-VaR}{TimeGAN-VaR} \\
+           & {\Large mediante datos sintéticos} &  &  \\
            &  &  &  \\
            \hline
       \end{tabular}\\
@@ -235,41 +323,47 @@
 \begin{document}
 
 \thispagestyle{firstpage}
-\vspace*{8\baselineskip} % Espacio vertical controlado
+\vspace*{10\baselineskip} % Espacio vertical controlado
+
+\renewcommand{\contentsname}{}
+\begin{cuadrocontenido}
+  \tableofcontents
+\end{cuadrocontenido}
 
 \section{Introducción}
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.\\
 
-% Primero el código R
-\begin{lstlisting}[caption=Análisis de datos]
-# Cargamos datos
-datos <- read.csv("datos.csv")
-\end{lstlisting}
+\section{Objetivos}
 
-% Y ahora el output
-\begin{lstlisting}[style=Routput, caption=Resultado del análisis]
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  150.0   165.0   172.0   173.5   180.0   195.0 
-\end{lstlisting}
+\subsection{Objetivo general}
+a
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\subsection{Objetivos específicos}
+a
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\section{Marco teórico}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.\\
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\section{Metodología}
+A
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\section{Implementación en Python}
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\subsection{Conformacion del portafolio}
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\subsection{Entrenamiento de la red neuronal}
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\subsection{Cálculo del VaR con el modelo TimeGAN}
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\subsection{Cálculo del VaR con metodos convencionales}
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.\\
+\section{Resultados}
+A
 
-La modelación estadística constituye una herramienta fundamental en el análisis de datos contemporáneo. Los modelos lineales generalizados extienden el marco tradicional para acomodar respuestas no normalmente distribuidas y relaciones no lineales entre variables predictoras y respuesta. En este documento exploraremos diversas técnicas analíticas aplicadas a conjuntos de datos reales, evaluando su efectividad mediante validación cruzada y comparación de métricas de rendimiento. Se prestará especial atención a los diagnósticos de modelo, incluyendo análisis de residuos y evaluación de supuestos subyacentes. Los resultados obtenidos demuestran la importancia de seleccionar adecuadamente la distribución de error y función de enlace según la naturaleza de los datos analizados. Asimismo, compararemos los enfoques paramétricos tradicionales con métodos modernos de aprendizaje automático para determinar sus respectivas ventajas en diferentes contextos aplicados.
+\section{Conclusiones}
+a
+
+\section{Bibliografía}
+a
 
 \end{document}
