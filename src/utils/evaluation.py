@@ -131,39 +131,53 @@ def predictive_score(real_data, synthetic_data, prediction_horizon=5):
     entrenado con datos sintéticos para predecir datos reales.
     
     Args:
-        real_data: Array de datos reales
-        synthetic_data: Array de datos sintéticos
+        real_data: Array de datos reales de forma (n_real_samples, time_series_len, n_features)
+        synthetic_data: Array de datos sintéticos de forma (n_synth_samples, time_series_len, n_features)
         prediction_horizon: Número de pasos futuros a predecir
         
     Returns:
-        Error cuadrático medio de predicción
+        Error cuadrático medio relativo (ratio entre el error del modelo sintético y el modelo real)
     """
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import mean_squared_error
+    from sklearn.model_selection import train_test_split
     
-    # Crear conjuntos de entrenamiento y prueba
+    # Preparar conjuntos de datos reales
     X_real = real_data[:, :-prediction_horizon, :]
     y_real = real_data[:, -prediction_horizon:, :]
     
+    # Dividir en conjuntos de entrenamiento y prueba
+    X_real_train, X_real_test, y_real_train, y_real_test = train_test_split(
+        X_real, y_real, test_size=0.2, random_state=42)
+    
     # Aplanar la dimensión temporal
-    X_real_flat = X_real.reshape(X_real.shape[0], -1)
-    y_real_flat = y_real.reshape(y_real.shape[0], -1)
+    X_real_train_flat = X_real_train.reshape(X_real_train.shape[0], -1)
+    y_real_train_flat = y_real_train.reshape(y_real_train.shape[0], -1)
+    X_real_test_flat = X_real_test.reshape(X_real_test.shape[0], -1)
+    y_real_test_flat = y_real_test.reshape(y_real_test.shape[0], -1)
     
-    # Crear conjuntos de datos sintéticos similares
+    # Preparar datos sintéticos
     X_synth = synthetic_data[:, :-prediction_horizon, :]
+    y_synth = synthetic_data[:, -prediction_horizon:, :]
     X_synth_flat = X_synth.reshape(X_synth.shape[0], -1)
+    y_synth_flat = y_synth.reshape(y_synth.shape[0], -1)
     
-    # Entrenar modelo con datos sintéticos
-    model = LinearRegression()
-    model.fit(X_synth_flat, y_real_flat)
+    # 1. Entrenar un modelo con datos reales (línea base)
+    model_real = LinearRegression()
+    model_real.fit(X_real_train_flat, y_real_train_flat)
+    y_pred_real = model_real.predict(X_real_test_flat)
+    mse_real = mean_squared_error(y_real_test_flat, y_pred_real)
     
-    # Predecir sobre datos reales
-    y_pred = model.predict(X_real_flat)
+    # 2. Entrenar un modelo con datos sintéticos
+    model_synth = LinearRegression()
+    model_synth.fit(X_synth_flat, y_synth_flat)  # Entrenamos con datos sintéticos completos
+    y_pred_synth = model_synth.predict(X_real_test_flat)  # Predecimos en datos reales
+    mse_synth = mean_squared_error(y_real_test_flat, y_pred_synth)
     
-    # Calcular error
-    mse = mean_squared_error(y_real_flat, y_pred)
+    # Calcular el score relativo (más cercano a 1 es mejor)
+    relative_score = mse_synth / mse_real if mse_real > 0 else float('inf')
     
-    return mse
+    return relative_score
 
 def visualize_tsne(real_data, synthetic_data, n_components=2, perplexity=30):
     """
