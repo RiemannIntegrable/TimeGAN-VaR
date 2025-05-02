@@ -59,7 +59,7 @@ serving/
 checkpoint
 
 # Datos (opcional, quizás quieras incluir algunos ejemplos y excluir otros)
-data/*/
+data
 !data/*/.gitkeep
 !data/input/portafolio.csv
 !data/processed/portafolio_normalizado.csv
