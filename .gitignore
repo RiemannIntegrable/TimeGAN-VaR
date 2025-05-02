@@ -59,11 +59,13 @@ serving/
 checkpoint
 
 # Datos (opcional, quizás quieras incluir algunos ejemplos y excluir otros)
-data/raw/*
-!data/raw/.gitkeep
+data/input/*
+!data/input/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-#*.csv
+data/output/*
+!data/output/.gitkeep
+*.csv
 *.xlsx
 *.xls
 *.db
