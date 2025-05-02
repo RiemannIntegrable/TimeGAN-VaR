@@ -59,19 +59,8 @@ serving/
 checkpoint
 
 # Datos (opcional, quizás quieras incluir algunos ejemplos y excluir otros)
-data/input/*
-!data/input/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/output/*
-!data/output/.gitkeep
-*.csv
-*.xlsx
-*.xls
-*.db
-*.sqlite
-*.parquet
-*.feather
+data/*/
+!data/*/.gitkeep
 
 # Resultados de ejecución
 results/
