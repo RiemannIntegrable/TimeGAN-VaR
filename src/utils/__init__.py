@@ -6,7 +6,8 @@ from .evaluation import (
     calculate_kl_divergence,
     discriminative_score,
     predictive_score,
-    visualize_tsne
+    visualize_tsne,
+    prepare_data_for_evaluation
 )
 
 from .visualization import (
@@ -28,5 +29,6 @@ __all__ = [
     'plot_acf_comparison',
     'plot_var_histogram',
     'plot_multiple_var_methods',
-    'plot_synthetic_returns'
+    'plot_synthetic_returns',
+    'prepare_data_for_evaluation'
 ]

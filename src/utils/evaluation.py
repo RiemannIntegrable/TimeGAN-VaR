@@ -3,6 +3,50 @@ from scipy import stats
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 
+def prepare_data_for_evaluation(real_series, synthetic_windows, window_size=250, stride=None):
+    """
+    Prepara datos reales y sintéticos para evaluación.
+    
+    Args:
+        real_series: Serie temporal real (puede ser DataFrame o array)
+        synthetic_windows: Ventanas sintéticas de forma (n_samples, window_size, n_features)
+        window_size: Tamaño de ventana para los datos reales
+        stride: Salto entre ventanas consecutivas (None para no superponer, 
+                para solapar parcialmente usar un valor < window_size)
+    
+    Returns:
+        Tupla de (real_windows, synthetic_windows) listas para evaluación
+    """
+    # Determinar características de los datos sintéticos
+    n_synthetic, seq_length, n_features = synthetic_windows.shape
+    
+    # Verificar que real_series tenga la forma adecuada
+    if isinstance(real_series, pd.DataFrame):
+        real_series = real_series.values
+        
+    # Si real_series es 1D, convertirlo a 2D
+    if len(real_series.shape) == 1:
+        real_series = real_series.reshape(-1, 1)
+    
+    # Establecer stride por defecto
+    if stride is None:
+        stride = window_size  # Sin superposición
+    
+    # Crear ventanas a partir de los datos reales
+    n_samples = (len(real_series) - window_size) // stride + 1
+    real_windows = np.zeros((n_samples, window_size, real_series.shape[1]))
+    
+    for i in range(n_samples):
+        start_idx = i * stride
+        end_idx = start_idx + window_size
+        real_windows[i] = real_series[start_idx:end_idx]
+    
+    # Asegurar que ambos conjuntos tienen las mismas dimensiones de características
+    if real_windows.shape[2] != n_features:
+        raise ValueError(f"La dimensión de características no coincide: real={real_windows.shape[2]}, sintético={n_features}")
+    
+    return real_windows, synthetic_windows
+
 def calculate_kl_divergence(real_data, synthetic_data):
     """
     Calcula la divergencia KL entre distribuciones reales y sintéticas.
