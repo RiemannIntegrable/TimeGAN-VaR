@@ -62,24 +62,6 @@ checkpoint
 tex/*
 !tex/*.tex
 !tex/*.pdf
-tex/*.dpth
-tex/*.auxlock
-tex/*.log
-tex/*.out
-tex/*.xml
-tex/*.bbl
-tex/*.blg
-tex/*.aux
-tex/*.listing
-tex/*.gz
-tex/*.synctex.gz
-tex/*.fls
-tex/*.fdb_latexmk
-tex/*.toc
-tex/*.lof
-tex/*.lot
-tex/*.bbl-SAVE-ERROR
-tex/*.md5
 
 # Resultados de ejecución
 results/
