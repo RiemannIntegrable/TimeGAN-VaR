@@ -59,9 +59,16 @@ serving/
 checkpoint
 
 # Generados por tex
-tex/
-!tex/proyecto_final.tex
-!tex/proyecto_final.pdf
+tex/*.dpth
+tex/*.auxlock
+tex/*.log
+tex/*.out
+tex/*.xml
+tex/*.bbl
+tex/*.listing
+tex/*.gz
+tex/*.bbl-SAVE-ERROR
+tex/*.md5
 
 # Resultados de ejecución
 results/
