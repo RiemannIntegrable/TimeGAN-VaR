@@ -20,6 +20,12 @@ wheels/
 .installed.cfg
 *.egg
 
+# VSCode
+.vscode/
+
+# Cursor
+.cursor
+
 # Jupyter Notebooks
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
