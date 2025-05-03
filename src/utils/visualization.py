@@ -145,26 +145,45 @@ def plot_var_histogram(pnl_values, var_value, confidence_level=0.95, title='Dist
     """
     plt.figure(figsize=(12, 6))
     
-    # Plotear histograma de P&L
-    sns.histplot(pnl_values, color='blue', alpha=0.5, stat='density', kde=True)
+    # Calcular estadísticas básicas para depuración y verificación
+    p_05 = np.percentile(pnl_values, 5)
+    p_01 = np.percentile(pnl_values, 1)
     
-    # Marcar el VaR
-    plt.axvline(x=-var_value, color='red', linestyle='--', linewidth=2, 
+    # Plotear histograma de P&L con KDE
+    ax = sns.histplot(pnl_values, color='blue', alpha=0.5, stat='density', kde=True, bins=50)
+    
+    # Asegurar límites adecuados en los ejes
+    min_val = min(np.min(pnl_values), -var_value * 1.5)
+    max_val = max(np.max(pnl_values), var_value * 1.5)
+    ax.set_xlim(min_val, max_val)
+    
+    # Marcar el VaR (lo que VaR representa es una pérdida, por lo que se marca como negativo en el eje P&L)
+    var_line = plt.axvline(x=-var_value, color='red', linestyle='--', linewidth=2, 
                 label=f'VaR ({confidence_level*100:.0f}%): {var_value:.2f}')
     
-    # Sombrear la región por debajo del VaR
-    x = np.linspace(min(pnl_values), -var_value, 1000)
-    y = plt.gca().get_lines()[0].get_ydata()
-    x_idx = np.searchsorted(plt.gca().get_lines()[0].get_xdata(), x)
-    y_interp = np.interp(x, plt.gca().get_lines()[0].get_xdata(), y)
-    plt.fill_between(x, y_interp, alpha=0.3, color='red')
+    # Obtener la densidad máxima para el sombreado
+    y_max = ax.get_ylim()[1]
+    
+    # Sombrear el área a la izquierda del VaR (región de pérdidas que exceden el VaR)
+    x_shade = np.linspace(min_val, -var_value, 100)
+    # Crear un área sombreada rectangular desde 0 hasta la altura máxima
+    plt.fill_between(x_shade, 0, y_max, alpha=0.3, color='red')
     
     # Configurar el gráfico
     plt.title(title, fontsize=14)
     plt.xlabel('Pérdidas y Ganancias (P&L)', fontsize=12)
     plt.ylabel('Densidad', fontsize=12)
     plt.grid(True, alpha=0.3)
-    plt.legend()
+    
+    # Añadir información detallada a la leyenda
+    plt.legend([var_line], [f'VaR ({confidence_level*100:.0f}%): {var_value:.2f}'])
+    
+    # Añadir anotaciones con información estadística
+    plt.text(0.02, 0.95, f"Percentil 5%: {p_05:.2f}\nPercentil 1%: {p_01:.2f}", 
+             transform=plt.gca().transAxes, verticalalignment='top',
+             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    
+    plt.tight_layout()
     
     return plt.gcf()
 
