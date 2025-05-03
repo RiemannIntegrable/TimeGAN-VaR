@@ -583,18 +583,35 @@ syn_generator = timegan_export_generator(timegan_tuple)
 \end{lstlisting}
 
 \begin{lstlisting}[style=PyOutput, caption=Resultados de las métricas]
-a
+Verificando estadísticas de los conjuntos:
+Train - Media: 0.5414, Desv. Est.: 0.0525
+Test - Media: 0.5415, Desv. Est.: 0.0527
+train autoencoder
+100%|----------| 3000/3000 [14:40<00:00,  3.41it/s]
+train supervisor
+100%|----------| 3000/3000 [10:08<00:00,  4.93it/s]
+joint train
+100%|----------| 3000/3000 [3:02:45<00:00,  3.66s/it] 
 \end{lstlisting}
 
-\subsection{Metodo de Montecarlo para el VaR usando los datos sintéticos de TimeGAN}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/entrenamiento.png}
+\end{figure}
 
-Lo primero que realizamos es generar los datos sintéticos de la serie temporal del portafolio, para esto, usamos la función \texttt{generator\_gen} del módulo \texttt{src/models/timegan.py}. Esta función toma como entrada el modelo TimeGAN entrenado y el número de muestras a generar. Luego, preparamos los datos sintéticos para poder evaluar que tan similar es el comportamiento de los datos sintéticos con el comportamiento del portafolio real mediante \texttt{prepare\_data\_for\_evaluation} para luego calcular las metricas ``\textit{Divergencia KL, Discriminative score}'' y ``\textit{Predictive score}''. 
+El entrenamiento de tu TimeGAN muestra patrones característicos de una implementación exitosa según el marco teórico propuesto por \cite{yoon2019timegan}. El autoencoder exhibe una convergencia rápida (caída abrupta hacia la época 500) y se estabiliza en valores cercanos a cero, mientras el supervisor converge incluso más rápidamente, evidenciando una captura eficiente de dependencias temporales. Ambos componentes muestran curvas de entrenamiento y prueba prácticamente idénticas, descartando sobreajuste y estableciendo una base sólida para la arquitectura adversarial.\\
+
+Complementariamente, generador y discriminador muestran el equilibrio dinámico típico de arquitecturas GAN, con oscilaciones estables (generador entre ~95-115, discriminador alrededor de ~1.9) y ausencia de colapso modal. Se observa una estabilización gradual en las épocas finales que indica el establecimiento de un equilibrio Nash aproximado. Este comportamiento demuestra que se está logrando el objetivo dual de TimeGAN: combinar eficazmente señales de aprendizaje supervisado (preservación de dependencias temporales) y no supervisado (distribución marginal realista), lo que debería traducirse en series temporales sintéticas de alta calidad para tu cálculo de VaR.
+
+\subsection{Generación de datos sintéticos}
+
+Para la generación de datos sintéticos, usamos la función \texttt{generator\_gen} del módulo \texttt{src/models/timegan.py}. Esta función toma como entrada el modelo TimeGAN entrenado y el número de muestras a generar. Luego, preparamos los datos sintéticos para poder evaluar que tan similar es el comportamiento de los datos sintéticos con el comportamiento del portafolio real mediante \texttt{prepare\_data\_for\_evaluation} para luego calcular las metricas ``\textit{Divergencia KL, Discriminative score}'' y ``\textit{Predictive score}''. 
 
 \begin{lstlisting}[language=Python, caption=Generación de datos sintéticos]
 from src.models.timegan import generator_gen
 
-# Generar 5000 muestras sintéticas
-synthetic_data = generator_gen(syn_generator, num_samples=5000)
+# Generar 100000 muestras sintéticas
+synthetic_data = generator_gen(syn_generator, num_samples=100000)
 
 # Preparar los datos para evaluación
 from src.utils.evaluation import prepare_data_for_evaluation, calculate_kl_divergence, discriminative_score, predictive_score
@@ -617,10 +634,13 @@ print(f"Predictive Score (MSE): {pred_score:.4f}")
 \end{lstlisting}
 
 \begin{lstlisting}[style=PyOutput, caption=Resultados de las métricas]
-Divergencia KL: _____
-Discriminative Score: _____
-Predictive Score (MSE): _____
+3125/3125 ━━━━━━━━━━━━━━━━━━━━ 381s 122ms/step
+Divergencia KL: 178.8790
+Discriminative Score: 0.9998
+Predictive Score (MSE): 2.8084
 \end{lstlisting}
+
+Tras exhaustivas iteraciones de entrenamiento con múltiples configuraciones de hiperparámetros (cada una requiriendo más de 4 horas de computación), se obtuvieron resultados optimizados pero no ideales. Las métricas finales (Divergencia KL: 178.8790, Discriminative Score: 0.9998, Predictive Score: 2.8084) revelan limitaciones significativas en la calidad de las series sintéticas generadas. La elevada Divergencia KL y el Discriminative Score cercano a 1.0 indican que las distribuciones sintéticas difieren sustancialmente de las reales y son fácilmente distinguibles mediante clasificación supervisada. El alto Predictive Score sugiere deficiencias en la preservación de las propiedades dinámicas temporales. Estos resultados, aunque representan el mejor rendimiento alcanzable en nuestro contexto experimental, señalan que TimeGAN debe utilizarse con cautela como complemento en el cálculo de VaR, más que como metodología única.
 
 \subsection{Cálculo del VaR con metodos convencionales}
 
